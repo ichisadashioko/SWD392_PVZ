@@ -3,29 +3,33 @@ package pvz;
 public class Main {
     public static void main(String[] args) {
         // Create a new game instance
-        Game game = new Game();
+        javax.swing.SwingUtilities.invokeLater(
+                () -> {
+                    new Game();
+                });
+        // Game game = new Game();
 
-        // Start the game
-        game.start();
+        // // Start the game
+        // game.start();
 
-        // Example of adding plants and zombies
-        game.addPlant(new Sunflower());
-        game.addZombie(new Zombie());
+        // // Example of adding plants and zombies
+        // game.addPlant(new Sunflower());
+        // game.addZombie(new Zombie());
 
-        // Run the game loop
-        while (game.isRunning()) {
-            game.update();
-            game.render();
-            // Simulate a delay for the game loop (e.g., 60 FPS)
-            try {
-                Thread.sleep(1000 / 60); // 60 FPS
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                break; // Exit the loop if interrupted
-            }
-        }
+        // // Run the game loop
+        // while (game.isRunning()) {
+        //     game.update();
+        //     game.render();
+        //     // Simulate a delay for the game loop (e.g., 60 FPS)
+        //     try {
+        //         Thread.sleep(1000 / 60); // 60 FPS
+        //     } catch (InterruptedException e) {
+        //         e.printStackTrace();
+        //         break; // Exit the loop if interrupted
+        //     }
+        // }
 
-        // End the game
-        game.end();
+        // // End the game
+        // game.end();
     }
 }

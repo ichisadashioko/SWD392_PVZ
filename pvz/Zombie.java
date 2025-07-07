@@ -19,6 +19,8 @@ public class Zombie extends GameObject {
 
     @Override
     public void render(Graphics g) {
+        // change color to green
+        g.setColor(java.awt.Color.GREEN);
         g.drawString("zombie", x, y);
     }
 }

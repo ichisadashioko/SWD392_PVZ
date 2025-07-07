@@ -5,7 +5,7 @@ public class Main {
         // Create a new game instance
         javax.swing.SwingUtilities.invokeLater(
                 () -> {
-                    new Game();
+                    Game.getInstance();
                 });
         // Game game = new Game();
 

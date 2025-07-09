@@ -188,7 +188,7 @@ public class Game {
 
     public void update() {
         // Update game state, handle input, etc.
-        System.out.println("Game updated.");
+        // System.out.println("Game updated.");
 
         // Move the circle
         circleX += velocityX;

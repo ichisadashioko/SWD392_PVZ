@@ -1,6 +1,7 @@
 package pvz;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -110,6 +111,87 @@ public class Game {
         frame = new JFrame("PVZ Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, height);
+
+        // add mouse listener for the game window
+        frame.addMouseListener(
+                new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        // Handle mouse click events
+                        int mouseX = e.getX();
+                        int mouseY = e.getY();
+                        System.out.println("mouseClick( " + mouseX + "," + mouseY + ")");
+
+                        // filter all game objects for Clickable interface
+                        ArrayList<Clickable> object_list = new ArrayList<>();
+
+                        ArrayList<ZIndexProvider> clickables_with_z_index = new ArrayList<>();
+                        ArrayList<Clickable> clickables_without_z_index = new ArrayList<>();
+                        for (GameObject go : gameObjects) {
+                            if (go instanceof Clickable) {
+                                object_list.add((Clickable) go);
+
+                                if (go instanceof ZIndexProvider) {
+                                    clickables_with_z_index.add((ZIndexProvider) go);
+                                } else {
+                                    clickables_without_z_index.add((Clickable) go);
+                                }
+                            }
+                        }
+
+                        System.out.println(
+                                "clickables_with_z_index.size: " + clickables_with_z_index.size());
+                        System.out.println(
+                                "clickables_without_z_index.size: "
+                                        + clickables_without_z_index.size());
+
+                        clickables_with_z_index.sort(
+                                new Comparator<ZIndexProvider>() {
+                                    @Override
+                                    public int compare(ZIndexProvider a, ZIndexProvider b) {
+                                        if (a.getZIndex() > b.getZIndex()) {
+                                            return -1;
+                                        } else if (a.getZIndex() < b.getZIndex()) {
+                                            return 1;
+                                        } else {
+                                            return 0;
+                                        }
+                                    }
+                                });
+
+                        boolean stop_propagation = false;
+
+                        for (int i = 0; i < clickables_with_z_index.size(); i++) {
+                            try {
+                                Clickable go = (Clickable) clickables_with_z_index.get(i);
+                                if (go.onClick(mouseX, mouseY)) {
+                                    stop_propagation = true;
+                                    break;
+                                }
+                            } catch (Exception ex) {
+                                System.err.println(ex);
+                                ex.printStackTrace(System.err);
+                            }
+                        }
+
+                        if (stop_propagation) {
+                            return;
+                        }
+
+                        for (int i = 0; i < clickables_without_z_index.size(); i++) {
+                            try {
+                                Clickable go = (Clickable) clickables_without_z_index.get(i);
+                                if (go.onClick(mouseX, mouseY)) {
+                                    stop_propagation = true;
+                                    break;
+                                }
+                            } catch (Exception ex) {
+                                System.err.println(ex);
+                                ex.printStackTrace(System.err);
+                            }
+                        }
+                    }
+                });
 
         panel =
                 new JPanel() {
@@ -227,6 +309,16 @@ public class Game {
     public void addSun(Sun sun) {
         suns.add(sun);
         gameObjects.add(sun);
+    }
+
+    public void removeSun(Sun sun) {
+        if (suns.indexOf(sun) >= 0) {
+            suns.remove(sun);
+        }
+
+        if (gameObjects.indexOf(sun) >= 0) {
+            gameObjects.remove(sun);
+        }
     }
 
     public void addPlant(Plant plant) {

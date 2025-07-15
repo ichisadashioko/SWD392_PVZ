@@ -3,18 +3,37 @@ package pvz;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-public class Game {
+import java.awt.event.ActionListener;
+
+public class Game implements ProjectileListener, SunWorld {
+    public void addProjectile(GameObject go) {
+        this.projectiles.add(go);
+        this.gameObjects.add(go);
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
     // singleton instance
     private static Game instance;
 
     public static Game getInstance() {
+        System.out.println("Game.getInstance() called.");
+        System.out.println(instance);
         if (instance == null) {
             instance = new Game();
         }
+
         return instance;
     }
 
@@ -33,7 +52,7 @@ public class Game {
     public int velocityY = 2; // Speed in the Y direction
 
     public ArrayList<GameObject> gameObjects = new ArrayList<>();
-    public ArrayList<Projectile> projectiles = new ArrayList<>();
+    public ArrayList<GameObject> projectiles = new ArrayList<>();
     public ArrayList<Plant> plants = new ArrayList<>();
     public ArrayList<Zombie> zombies = new ArrayList<>();
     public ArrayList<Sun> suns = new ArrayList<>();
@@ -43,6 +62,8 @@ public class Game {
     public final int GRID_COLS = 9; // Number of columns in the grid
     public final int GRID_ROWS = 5; // Number of rows in the grid
     public Plant[][] plantGrid = new Plant[GRID_ROWS][GRID_COLS]; // 2D array to represent the grid of plants
+
+    public GameObject selectedPlant = null;
 
     public boolean placePlant(Plant plant, int row, int col) {
         // Check if the position is within bounds and not already occupied
@@ -111,14 +132,74 @@ public class Game {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, height);
 
+        JPanel plantSelectionPanel = new JPanel();
+        JButton sunflowerButton = new JButton("Sunflower");
+        JButton peashooterButton = new JButton("Peashooter");
+
+        sunflowerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                // Logic to handle sunflower button click
+                System.out.println("Sunflower button clicked.");
+                Plant sunflower = new Sunflower();
+                selectedPlant = sunflower;
+            }
+        });
+
+        peashooterButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                // Logic to handle peashooter button click
+                System.out.println("Peashooter button clicked.");
+                Peashooter peashooter = new Peashooter();
+                selectedPlant = peashooter;
+            }
+        });
+
+        plantSelectionPanel.add(sunflowerButton);
+        plantSelectionPanel.add(peashooterButton);
+        frame.add(plantSelectionPanel, java.awt.BorderLayout.NORTH);
+
+        panel = new JPanel() {
+            @Override
+            public void paintComponent(java.awt.Graphics g) {
+                super.paintComponent(g);
+                // Custom rendering logic can go here
+                // paint the background to rgb code
+                g.setColor(java.awt.Color.decode("#222222")); // Sky blue background
+                g.fillRect(0, 0, width, height);
+                g.fillOval(circleX, circleY, circleRadius, circleRadius);
+                for (int i = 0; i < gameObjects.size(); i++) {
+                    GameObject go = gameObjects.get(i);
+                    if (go == null) {
+                        continue;
+                    }
+                    try {
+                        if (go.active) {
+                            go.render(g);
+                        }
+                    } catch (Exception e) {
+                        // TODO: handle exception
+                        System.err.println(e.getMessage());
+                        System.err.println(e.getStackTrace());
+                    }
+
+                    // render the plant grid
+                    render_plant_grid(g);
+                }
+            }
+        };
+
         // add mouse listener for the game window
-        frame.addMouseListener(
+        panel.addMouseListener(
                 new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent e) {
                         // Handle mouse click events
-                        int mouseX = e.getX() - frame.getInsets().left;
-                        int mouseY = e.getY() - frame.getInsets().top;
+                        // int mouseX = e.getX() - frame.getInsets().left;
+                        // int mouseY = e.getY() - frame.getInsets().top;
+                        int mouseX = e.getX();
+                        int mouseY = e.getY();
                         System.out.println("mouseClick( " + mouseX + "," + mouseY + ")");
 
                         // filter all game objects for Clickable interface
@@ -192,35 +273,6 @@ public class Game {
                     }
                 });
 
-        panel = new JPanel() {
-            @Override
-            public void paintComponent(java.awt.Graphics g) {
-                super.paintComponent(g);
-                // Custom rendering logic can go here
-                // paint the background to rgb code
-                g.setColor(java.awt.Color.decode("#222222")); // Sky blue background
-                g.fillRect(0, 0, width, height);
-                g.fillOval(circleX, circleY, circleRadius, circleRadius);
-                for (int i = 0; i < gameObjects.size(); i++) {
-                    GameObject go = gameObjects.get(i);
-                    if (go == null) {
-                        continue;
-                    }
-                    try {
-                        if (go.active) {
-                            go.render(g);
-                        }
-                    } catch (Exception e) {
-                        // TODO: handle exception
-                        System.err.println(e.getMessage());
-                        System.err.println(e.getStackTrace());
-                    }
-
-                    // render the plant grid
-                    render_plant_grid(g);
-                }
-            }
-        };
         frame.add(panel);
         frame.setVisible(true);
 
@@ -248,7 +300,8 @@ public class Game {
         addPlant(new Sunflower());
         addZombie(new Zombie(1200, 200));
         // Example of placing a plant in the grid
-        Plant sunflower = new Plant();
+        Sunflower sunflower = new Sunflower();
+        sunflower.sun_world = this;
         boolean placed = placePlant(sunflower, 0, 0); // Place sunflower
         if (placed) {
             System.out.println("Sunflower placed at (0, 0) in the grid.");
@@ -256,9 +309,11 @@ public class Game {
             System.out.println("Failed to place sunflower at (0, 0) in the grid.");
         }
         // Example of placing another plant
-        Plant peashooter = new Plant();
+        Peashooter peashooter = new Peashooter();
+        peashooter.projectileListener = this;
         boolean placedPeashooter = placePlant(peashooter, 1, 1);
         if (placedPeashooter) {
+            gameObjects.add(peashooter);
             System.out.println("Peashooter placed at (1, 1) in the grid.");
         } else {
             System.out.println("Failed to place Peashooter at (1, 1) in the grid.");

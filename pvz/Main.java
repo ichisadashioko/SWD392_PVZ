@@ -3,10 +3,11 @@ package pvz;
 public class Main {
     public static void main(String[] args) {
         // Create a new game instance
-        javax.swing.SwingUtilities.invokeLater(
-                () -> {
-                    Game.getInstance();
-                });
+        // javax.swing.SwingUtilities.invokeLater(
+        //         () -> {
+        //             Game.getInstance();
+        //         });
+        Game.getInstance();
         // Game game = new Game();
 
         // // Start the game

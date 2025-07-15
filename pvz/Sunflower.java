@@ -30,6 +30,8 @@ public class Sunflower extends Plant {
     boolean debug_click_on_sun = true;
     private int produced_count = 0;
 
+    public SunWorld sun_world;
+
     private void produceSun() {
         produced_count += 1;
         if (debug_click_on_sun) {
@@ -39,17 +41,38 @@ public class Sunflower extends Plant {
         }
         // Logic to produce and add a sun to the game
         System.out.println("Sunflower produced a sun!");
-        int y = 100; // Example x position
-        int x = (int) (Math.random() * Game.getInstance().width);
-        int final_y = y + (int) (Math.random() * Game.getInstance().height - y);
-        // System.out.println("final_y: " + final_y);
-        Sun newSun = new Sun(x, y, 50, final_y); // Create a new sun
-        Game.getInstance().addSun(newSun); // Add the sun to the game
+        if (sun_world != null) {
+            int y = 100; // Example x position
+            int x = (int) (Math.random() * sun_world.getWidth());
+            int final_y = y + (int) (Math.random() * sun_world.getHeight() - y);
+            // System.out.println("final_y: " + final_y);
+            Sun newSun = new Sun(x, y, 50, final_y); // Create a new sun
+            sun_world.addSun(newSun); // Add the sun to the game
+        }
     }
+
+    public static String image_path = "sunflower.png";
 
     @Override
     public void render(java.awt.Graphics g) {
         // Render the sunflower (placeholder logic)
-        g.drawString("Sunflower", 10, 10);
+        // g.drawString("Sunflower", 10, 10);
+        // get width and height from the image
+        if (image_path == null || image_path.isEmpty()) {
+            System.err.println("Image path is not set or is empty.");
+            return;
+        }
+
+        if (!new java.io.File(image_path).exists()) {
+            System.err.println("Image file does not exist: " + image_path);
+            return;
+        }
+
+        java.awt.Image sunflowerImage = new javax.swing.ImageIcon(image_path).getImage();
+        if (sunflowerImage != null) {
+            g.drawImage(sunflowerImage, x, y, width, height, null);
+        } else {
+            System.err.println("Failed to load sunflower image from: " + image_path);
+        }
     }
 }

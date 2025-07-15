@@ -4,8 +4,8 @@ public class Plant extends GameObject {
     public String image_path = "peashooter.png";
     public int x; // X position of the plant
     public int y; // Y position of the plant
-    public int width; // Width of the plant
-    public int height; // Height of the plant
+    public int width = 50; // Width of the plant
+    public int height = 50; // Height of the plant
 
     // Plant-specific properties and methods can be added here
     // For example, health, damage, type, etc.

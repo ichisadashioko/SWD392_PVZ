@@ -42,8 +42,7 @@ public class Game {
     public final int CELL_HEIGHT = 100; // Height of each cell in the grid
     public final int GRID_COLS = 9; // Number of columns in the grid
     public final int GRID_ROWS = 5; // Number of rows in the grid
-    public Plant[][] plantGrid =
-            new Plant[GRID_ROWS][GRID_COLS]; // 2D array to represent the grid of plants
+    public Plant[][] plantGrid = new Plant[GRID_ROWS][GRID_COLS]; // 2D array to represent the grid of plants
 
     public boolean placePlant(Plant plant, int row, int col) {
         // Check if the position is within bounds and not already occupied
@@ -118,8 +117,8 @@ public class Game {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent e) {
                         // Handle mouse click events
-                        int mouseX = e.getX();
-                        int mouseY = e.getY();
+                        int mouseX = e.getX() - frame.getInsets().left;
+                        int mouseY = e.getY() - frame.getInsets().top;
                         System.out.println("mouseClick( " + mouseX + "," + mouseY + ")");
 
                         // filter all game objects for Clickable interface
@@ -193,51 +192,49 @@ public class Game {
                     }
                 });
 
-        panel =
-                new JPanel() {
-                    @Override
-                    public void paintComponent(java.awt.Graphics g) {
-                        super.paintComponent(g);
-                        // Custom rendering logic can go here
-                        // paint the background to rgb code
-                        g.setColor(java.awt.Color.decode("#222222")); // Sky blue background
-                        g.fillRect(0, 0, width, height);
-                        g.fillOval(circleX, circleY, circleRadius, circleRadius);
-                        for (int i = 0; i < gameObjects.size(); i++) {
-                            GameObject go = gameObjects.get(i);
-                            if (go == null) {
-                                continue;
-                            }
-                            try {
-                                if (go.active) {
-                                    go.render(g);
-                                }
-                            } catch (Exception e) {
-                                // TODO: handle exception
-                                System.err.println(e.getMessage());
-                                System.err.println(e.getStackTrace());
-                            }
-
-                            // render the plant grid
-                            render_plant_grid(g);
-                        }
+        panel = new JPanel() {
+            @Override
+            public void paintComponent(java.awt.Graphics g) {
+                super.paintComponent(g);
+                // Custom rendering logic can go here
+                // paint the background to rgb code
+                g.setColor(java.awt.Color.decode("#222222")); // Sky blue background
+                g.fillRect(0, 0, width, height);
+                g.fillOval(circleX, circleY, circleRadius, circleRadius);
+                for (int i = 0; i < gameObjects.size(); i++) {
+                    GameObject go = gameObjects.get(i);
+                    if (go == null) {
+                        continue;
                     }
-                };
+                    try {
+                        if (go.active) {
+                            go.render(g);
+                        }
+                    } catch (Exception e) {
+                        // TODO: handle exception
+                        System.err.println(e.getMessage());
+                        System.err.println(e.getStackTrace());
+                    }
+
+                    // render the plant grid
+                    render_plant_grid(g);
+                }
+            }
+        };
         frame.add(panel);
         frame.setVisible(true);
 
         // Initialize game state, load resources, etc.
         this.start();
-        timer =
-                new Timer(
-                        1000 / 60,
-                        new java.awt.event.ActionListener() {
-                            @Override
-                            public void actionPerformed(java.awt.event.ActionEvent e) {
-                                update();
-                                panel.repaint(); // Trigger a repaint to render the game state
-                            }
-                        });
+        timer = new Timer(
+                1000 / 60,
+                new java.awt.event.ActionListener() {
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        update();
+                        panel.repaint(); // Trigger a repaint to render the game state
+                    }
+                });
 
         System.out.println("Game timer started at 60 FPS.");
         timer.start();
